@@ -17,7 +17,7 @@ const Navbar = () => {
                 </Link>
                 <nav className="nav-links">
                     <Link to="/store">Store</Link>
-                    {user && (
+                    {user && !user.is_staff && !user.is_superadmin && user.first_name !== 'Admin' && (
                         <>
                             <Link to="/wishlist" title="Wishlist">
                                 <Heart size={22} color="#ef4444" />

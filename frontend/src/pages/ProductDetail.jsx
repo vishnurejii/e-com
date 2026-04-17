@@ -83,19 +83,21 @@ const ProductDetail = () => {
                     <p className="details-price" style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '2rem' }}>${product.price.toFixed(2)}</p>
                     <div className="details-desc" style={{ fontSize: '1.125rem', color: 'var(--text-muted)', marginBottom: '3rem', lineHeight: 1.8 }}>{product.description || "No description available for this premium product."}</div>
                     
-                    <div style={{ display: 'flex', gap: '1rem' }}>
-                        <button className="btn btn-primary" style={{ padding: '1.25rem 2.5rem', fontSize: '1.125rem', flexGrow: 1 }} onClick={() => addToCart(product)}>
-                            <ShoppingCart size={22} /> Add to Cart
-                        </button>
-                        <button 
-                            className="btn" 
-                            style={{ padding: '1.25rem', background: 'white', border: '1px solid var(--border)', color: '#ef4444' }} 
-                            onClick={addToWishlistHandler}
-                            disabled={wishlistLoading}
-                        >
-                            <Heart size={24} fill={wishlistLoading ? "#fee2e2" : "none"} />
-                        </button>
-                    </div>
+                    {!isAdmin && (
+                        <div style={{ display: 'flex', gap: '1rem' }}>
+                            <button className="btn btn-primary" style={{ padding: '1.25rem 2.5rem', fontSize: '1.125rem', flexGrow: 1 }} onClick={() => addToCart(product)}>
+                                <ShoppingCart size={22} /> Add to Cart
+                            </button>
+                            <button 
+                                className="btn" 
+                                style={{ padding: '1.25rem', background: 'white', border: '1px solid var(--border)', color: '#ef4444' }} 
+                                onClick={addToWishlistHandler}
+                                disabled={wishlistLoading}
+                            >
+                                <Heart size={24} fill={wishlistLoading ? "#fee2e2" : "none"} />
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -127,41 +129,47 @@ const ProductDetail = () => {
 
                 <div>
                     <h2 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '2rem' }}>Write a Review</h2>
-                    {user ? (
-                        <form onSubmit={submitHandler} style={{ background: 'white', padding: '2.5rem', borderRadius: '24px', border: '1px solid var(--border)' }}>
-                            <div style={{ marginBottom: '1.5rem' }}>
-                                <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.75rem' }}>Rating</label>
-                                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                    {[1, 2, 3, 4, 5].map(nu => (
-                                        <button 
-                                            key={nu} 
-                                            type="button" 
-                                            onClick={() => setRating(nu)}
-                                            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-                                        >
-                                            <Star size={32} fill={rating >= nu ? "#f59e0b" : "none"} color="#f59e0b" />
-                                        </button>
-                                    ))}
+                    {!isAdmin ? (
+                        user ? (
+                            <form onSubmit={submitHandler} style={{ background: 'white', padding: '2.5rem', borderRadius: '24px', border: '1px solid var(--border)' }}>
+                                <div style={{ marginBottom: '1.5rem' }}>
+                                    <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.75rem' }}>Rating</label>
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        {[1, 2, 3, 4, 5].map(nu => (
+                                            <button 
+                                                key={nu} 
+                                                type="button" 
+                                                onClick={() => setRating(nu)}
+                                                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                                            >
+                                                <Star size={32} fill={rating >= nu ? "#f59e0b" : "none"} color="#f59e0b" />
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
+                                <div style={{ marginBottom: '2rem' }}>
+                                    <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.75rem' }}>Your Experience</label>
+                                    <textarea 
+                                        value={comment} 
+                                        onChange={(e) => setComment(e.target.value)}
+                                        placeholder="Tell others about this product..."
+                                        style={{ width: '100%', padding: '1.25rem', borderRadius: '16px', border: '1px solid var(--border)', minHeight: '150px', fontSize: '1rem', outline: 'none' }}
+                                        required
+                                    />
+                                </div>
+                                <button type="submit" className="btn btn-primary" disabled={reviewLoading} style={{ width: '100%', padding: '1.25rem' }}>
+                                    {reviewLoading ? 'Submitting...' : 'Post Review'}
+                                </button>
+                            </form>
+                        ) : (
+                            <div style={{ background: '#f8fafc', padding: '2.5rem', borderRadius: '24px', textAlign: 'center', border: '1px dashed var(--border)' }}>
+                                <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>You must be logged in to leave a review.</p>
+                                <Link to="/login" className="btn btn-primary">Login to Review</Link>
                             </div>
-                            <div style={{ marginBottom: '2rem' }}>
-                                <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.75rem' }}>Your Experience</label>
-                                <textarea 
-                                    value={comment} 
-                                    onChange={(e) => setComment(e.target.value)}
-                                    placeholder="Tell others about this product..."
-                                    style={{ width: '100%', padding: '1.25rem', borderRadius: '16px', border: '1px solid var(--border)', minHeight: '150px', fontSize: '1rem', outline: 'none' }}
-                                    required
-                                />
-                            </div>
-                            <button type="submit" className="btn btn-primary" disabled={reviewLoading} style={{ width: '100%', padding: '1.25rem' }}>
-                                {reviewLoading ? 'Submitting...' : 'Post Review'}
-                            </button>
-                        </form>
+                        )
                     ) : (
-                        <div style={{ background: '#f8fafc', padding: '2.5rem', borderRadius: '24px', textAlign: 'center', border: '1px dashed var(--border)' }}>
-                            <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>You must be logged in to leave a review.</p>
-                            <Link to="/login" className="btn btn-primary">Login to Review</Link>
+                        <div style={{ background: '#f8fafc', padding: '2.5rem', borderRadius: '24px', textAlign: 'center', border: '1px solid var(--border)' }}>
+                            <p style={{ color: 'var(--text-muted)' }}>Administrators cannot post reviews.</p>
                         </div>
                     )}
                 </div>
