@@ -2,7 +2,7 @@ const Product = require('../models/Product');
 
 const getProducts = async (req, res) => {
     try {
-        const { category, keyword } = req.query;
+        const { category, keyword, minPrice, maxPrice, sort } = req.query;
         let query = { is_available: true };
 
         if (category) {
@@ -16,7 +16,22 @@ const getProducts = async (req, res) => {
             ];
         }
 
-        const products = await Product.find(query).populate('category');
+        if (minPrice || maxPrice) {
+            query.price = {};
+            if (minPrice) query.price.$gte = Number(minPrice);
+            if (maxPrice) query.price.$lte = Number(maxPrice);
+        }
+
+        let apiQuery = Product.find(query).populate('category');
+
+        if (sort) {
+            const sortBy = sort.split(',').join(' ');
+            apiQuery = apiQuery.sort(sortBy);
+        } else {
+            apiQuery = apiQuery.sort('-createdAt');
+        }
+
+        const products = await apiQuery;
         res.json(products);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -82,4 +97,38 @@ const updateProduct = async (req, res) => {
     }
 };
 
-module.exports = { getProducts, getProductById, createProduct, deleteProduct, updateProduct };
+const createProductReview = async (req, res) => {
+    const { rating, comment } = req.body;
+    const product = await Product.findById(req.params.id);
+
+    if (product) {
+        const alreadyReviewed = product.reviews.find(
+            (r) => r.user.toString() === req.user._id.toString()
+        );
+
+        if (alreadyReviewed) {
+            res.status(400);
+            return res.json({ message: 'Product already reviewed' });
+        }
+
+        const review = {
+            name: `${req.user.first_name} ${req.user.last_name}`,
+            rating: Number(rating),
+            comment,
+            user: req.user._id,
+        };
+
+        product.reviews.push(review);
+        product.numReviews = product.reviews.length;
+        product.rating =
+            product.reviews.reduce((acc, item) => item.rating + acc, 0) /
+            product.reviews.length;
+
+        await product.save();
+        res.status(201).json({ message: 'Review added' });
+    } else {
+        res.status(404).json({ message: 'Product not found' });
+    }
+};
+
+module.exports = { getProducts, getProductById, createProduct, deleteProduct, updateProduct, createProductReview };

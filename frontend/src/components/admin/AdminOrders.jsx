@@ -24,20 +24,20 @@ const AdminOrders = ({ user }) => {
         }
     }, [user]);
 
-    const deliverHandler = async (id) => {
-        if (window.confirm('Mark this order as delivered?')) {
-            try {
-                const config = { headers: { Authorization: `Bearer ${user.token}` } };
-                await axios.put(`http://localhost:5000/api/orders/${id}/deliver`, {}, config);
-                fetchOrders();
-            } catch (error) {
-                console.error(error);
-                alert('Error updating order status');
-            }
+    const statusUpdateHandler = async (id, status) => {
+        try {
+            const config = { headers: { Authorization: `Bearer ${user.token}` } };
+            await axios.put(`http://localhost:5000/api/orders/${id}/status`, { status }, config);
+            fetchOrders();
+        } catch (error) {
+            console.error(error);
+            alert('Error updating status');
         }
     };
 
     if (loading) return <div style={{ padding: '4rem', textAlign: 'center', fontWeight: 600, color: 'var(--secondary)' }}>Accessing secure transaction records...</div>;
+
+    const statusOptions = ['Ordered', 'Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled'];
 
     return (
         <div>
@@ -74,7 +74,7 @@ const AdminOrders = ({ user }) => {
                                         <p style={{ fontSize: '0.75rem', color: 'var(--secondary)' }}>{o.user?.email}</p>
                                     </td>
                                     <td style={{ padding: '1.25rem 1.5rem' }}>
-                                        <p style={{ fontWeight: 800, color: 'var(--primary)', fontSize: '1.125rem' }}>${o.totalPrice.toFixed(2)}</p>
+                                        <p style={{ fontWeight: 800, color: 'var(--primary)', fontSize: '1.125rem' }}>${o.totalPrice?.toFixed(2)}</p>
                                         <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#10b981', background: '#dcfce7', padding: '0.15rem 0.4rem', borderRadius: '4px' }}>PAID</span>
                                     </td>
                                     <td style={{ padding: '1.25rem 1.5rem' }}>
@@ -92,27 +92,24 @@ const AdminOrders = ({ user }) => {
                                             display: 'inline-flex',
                                             alignItems: 'center',
                                             gap: '0.35rem',
-                                            background: o.isDelivered ? '#dcfce7' : '#fef9c3',
-                                            color: o.isDelivered ? '#15803d' : '#854d0e',
-                                            border: `1px solid ${o.isDelivered ? '#bcf0da' : '#fde68a'}`
+                                            background: o.status === 'Delivered' ? '#dcfce7' : o.status === 'Cancelled' ? '#fee2e2' : '#fef9c3',
+                                            color: o.status === 'Delivered' ? '#15803d' : o.status === 'Cancelled' ? '#ef4444' : '#854d0e',
+                                            border: `1px solid ${o.status === 'Delivered' ? '#bcf0da' : '#fde68a'}`
                                         }}>
-                                            {o.isDelivered ? <CheckCircle size={14} /> : <Clock size={14} />}
+                                            {o.status === 'Delivered' ? <CheckCircle size={14} /> : <Clock size={14} />}
                                             {o.status.toUpperCase()}
                                         </span>
                                     </td>
                                     <td style={{ padding: '1.25rem 1.5rem', textAlign: 'right' }}>
-                                        {!o.isDelivered ? (
-                                            <button 
-                                                onClick={() => deliverHandler(o._id)} 
-                                                style={{ border: 'none', background: 'var(--primary)', color: 'white', padding: '0.5rem 1rem', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
-                                                onMouseOver={(e) => e.target.style.background = 'var(--primary-hover)'}
-                                                onMouseOut={(e) => e.target.style.background = 'var(--primary)'}
-                                            >
-                                                Mark Delivered
-                                            </button>
-                                        ) : (
-                                            <span style={{ fontSize: '0.8rem', color: 'var(--secondary)', fontWeight: 500 }}>Completed</span>
-                                        )}
+                                        <select 
+                                            value={o.status} 
+                                            onChange={(e) => statusUpdateHandler(o._id, e.target.value)}
+                                            style={{ padding: '0.5rem', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '0.8rem', fontWeight: 600, outline: 'none', cursor: 'pointer' }}
+                                        >
+                                            {statusOptions.map(opt => (
+                                                <option key={opt} value={opt}>{opt}</option>
+                                            ))}
+                                        </select>
                                     </td>
                                 </tr>
                             ))
