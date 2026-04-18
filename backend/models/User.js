@@ -10,7 +10,10 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: true },
     is_staff: { type: Boolean, default: false },
     is_active: { type: Boolean, default: true },
-    is_superadmin: { type: Boolean, default: false }
+    is_superadmin: { type: Boolean, default: false },
+    is_seller: { type: Boolean, default: false },
+    shopName: { type: String },
+    shopDescription: { type: String }
 }, { timestamps: true });
 
 userSchema.pre('save', async function() {

@@ -16,6 +16,7 @@ const productSchema = new mongoose.Schema({
     stock: { type: Number, required: true },
     is_available: { type: Boolean, default: true },
     category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
+    seller: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     reviews: [reviewSchema],
     numReviews: { type: Number, required: true, default: 0 },
     rating: { type: Number, required: true, default: 0 }

@@ -61,6 +61,9 @@ const ProductDetail = () => {
         }
     };
 
+    const isAdmin = user && (user.is_staff || user.is_superadmin || user.first_name === 'Admin');
+    const isSeller = user && user.is_seller;
+
     if (!product) return <div className="container" style={{ padding: '5rem 0' }}>Loading...</div>;
 
     return (
@@ -74,7 +77,14 @@ const ProductDetail = () => {
                         <ArrowLeft size={20} /> Back to Store
                     </Link>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <p className="product-category">{product.category?.category_name}</p>
+                        <div>
+                            <p className="product-category">{product.category?.category_name}</p>
+                            {product.seller && (
+                                <p style={{ fontSize: '0.85rem', color: 'var(--primary)', fontWeight: 700, marginTop: '0.25rem' }}>
+                                    Sold by: <span style={{ textDecoration: 'underline' }}>{product.seller.shopName || 'Marketplace Seller'}</span>
+                                </p>
+                            )}
+                        </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: '#f59e0b', fontWeight: 800 }}>
                             <Star size={18} fill="#f59e0b" /> {product.rating.toFixed(1)} ({product.numReviews} reviews)
                         </div>
@@ -83,7 +93,7 @@ const ProductDetail = () => {
                     <p className="details-price" style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '2rem' }}>${product.price.toFixed(2)}</p>
                     <div className="details-desc" style={{ fontSize: '1.125rem', color: 'var(--text-muted)', marginBottom: '3rem', lineHeight: 1.8 }}>{product.description || "No description available for this premium product."}</div>
                     
-                    {!isAdmin && (
+                    {!isAdmin && !isSeller && (
                         <div style={{ display: 'flex', gap: '1rem' }}>
                             <button className="btn btn-primary" style={{ padding: '1.25rem 2.5rem', fontSize: '1.125rem', flexGrow: 1 }} onClick={() => addToCart(product)}>
                                 <ShoppingCart size={22} /> Add to Cart

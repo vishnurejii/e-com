@@ -2,11 +2,15 @@ const Product = require('../models/Product');
 
 const getProducts = async (req, res) => {
     try {
-        const { category, keyword, minPrice, maxPrice, sort } = req.query;
+        const { category, keyword, minPrice, maxPrice, sort, sellerId } = req.query;
         let query = { is_available: true };
 
         if (category) {
             query.category = category;
+        }
+
+        if (sellerId) {
+            query.seller = sellerId;
         }
 
         if (keyword) {
@@ -22,7 +26,7 @@ const getProducts = async (req, res) => {
             if (maxPrice) query.price.$lte = Number(maxPrice);
         }
 
-        let apiQuery = Product.find(query).populate('category');
+        let apiQuery = Product.find(query).populate('category').populate('seller', 'shopName');
 
         if (sort) {
             const sortBy = sort.split(',').join(' ');
@@ -40,7 +44,7 @@ const getProducts = async (req, res) => {
 
 const getProductById = async (req, res) => {
     try {
-        const product = await Product.findById(req.params.id).populate('category');
+        const product = await Product.findById(req.params.id).populate('category').populate('seller', 'shopName shopDescription');
         if (product) {
             res.json(product);
         } else {
@@ -53,7 +57,8 @@ const getProductById = async (req, res) => {
 
 const createProduct = async (req, res) => {
     try {
-        const product = new Product(req.body);
+        const productData = { ...req.body, seller: req.user._id };
+        const product = new Product(productData);
         const createdProduct = await product.save();
         res.status(201).json(createdProduct);
     } catch (error) {
@@ -63,8 +68,12 @@ const createProduct = async (req, res) => {
 
 const deleteProduct = async (req, res) => {
     try {
-        const product = await Product.findByIdAndDelete(req.params.id);
+        const product = await Product.findById(req.params.id);
         if (product) {
+            if (product.seller.toString() !== req.user._id.toString() && !req.user.is_staff && !req.user.is_superadmin && req.user.first_name !== 'Admin') {
+                return res.status(401).json({ message: 'Not authorized to delete this product' });
+            }
+            await Product.findByIdAndDelete(req.params.id);
             res.json({ message: 'Product removed' });
         } else {
             res.status(404).json({ message: 'Product not found' });
@@ -79,6 +88,9 @@ const updateProduct = async (req, res) => {
         const { product_name, price, description, image, stock, category, is_available } = req.body;
         const product = await Product.findById(req.params.id);
         if (product) {
+            if (product.seller.toString() !== req.user._id.toString() && !req.user.is_staff && !req.user.is_superadmin && req.user.first_name !== 'Admin') {
+                return res.status(401).json({ message: 'Not authorized to update this product' });
+            }
             product.product_name = product_name || product.product_name;
             product.price = price || product.price;
             product.description = description || product.description;

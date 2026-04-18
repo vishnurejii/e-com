@@ -40,6 +40,10 @@ const Login = () => {
                     </div>
                     <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '1.25rem', marginTop: '1.5rem', fontSize: '1.125rem' }}>Continue to NewKart</button>
                 </form>
+                <p style={{ textAlign: 'center', marginTop: '2rem', color: 'var(--text-muted)' }}>
+                    New to NewKart? <Link to="/register" style={{ color: 'var(--primary)', fontWeight: 700, textDecoration: 'none' }}>Create an Account</Link>
+                </p>
+
                 <div style={{ marginTop: '2.5rem', padding: '1.5rem', background: '#f1f5f9', borderRadius: '16px', border: '1px dashed var(--border)' }}>
                     <p style={{ textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
                         <b>Developer Mode:</b> Use these credentials to test Admin features:

@@ -8,7 +8,7 @@ const ProductCard = ({ product }) => {
     const { addToCart } = useCart();
     const { user } = useAuth();
 
-    const isAdmin = user && (user.is_staff || user.is_superadmin || user.first_name === 'Admin');
+    const isRestricted = user && (user.is_staff || user.is_superadmin || user.is_seller || user.first_name === 'Admin');
 
     return (
         <div className="product-card">
@@ -20,7 +20,7 @@ const ProductCard = ({ product }) => {
                 <h3 className="product-title">{product.product_name}</h3>
                 <div className="product-price-row">
                     <span className="product-price">${product.price}</span>
-                    {!isAdmin && (
+                    {!isRestricted && (
                         <button className="btn btn-primary btn-sm" onClick={() => addToCart(product)}>
                             <ShoppingCart size={18} />
                             Add

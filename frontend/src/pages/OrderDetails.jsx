@@ -120,7 +120,20 @@ const OrderDetails = () => {
                                 <div key={item.product} style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
                                     <img src={item.image} alt={item.name} style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '12px' }} />
                                     <div style={{ flexGrow: 1 }}>
-                                        <Link to={`/product/${item.product}`} style={{ textDecoration: 'none', color: 'var(--text)', fontWeight: 700 }}>{item.name}</Link>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                            <Link to={`/product/${item.product}`} style={{ textDecoration: 'none', color: 'var(--text)', fontWeight: 700 }}>{item.name}</Link>
+                                            <span style={{ 
+                                                fontSize: '0.7rem', 
+                                                fontWeight: 800, 
+                                                background: item.itemStatus === 'Delivered' ? '#dcfce7' : item.itemStatus === 'Cancelled' ? '#fee2e2' : '#f1f5f9',
+                                                color: item.itemStatus === 'Delivered' ? '#15803d' : item.itemStatus === 'Cancelled' ? '#ef4444' : '#64748b',
+                                                padding: '0.25rem 0.6rem',
+                                                borderRadius: '6px',
+                                                textTransform: 'uppercase'
+                                            }}>
+                                                {item.itemStatus}
+                                            </span>
+                                        </div>
                                         <p style={{ fontSize: '0.9rem', color: 'var(--secondary)' }}>{item.qty} x ${item.price.toFixed(2)}</p>
                                     </div>
                                     <p style={{ fontWeight: 800 }}>${(item.qty * item.price).toFixed(2)}</p>

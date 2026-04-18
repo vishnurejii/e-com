@@ -8,9 +8,11 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import AdminDashboard from './pages/AdminDashboard';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import MyOrders from './pages/MyOrders';
 import OrderDetails from './pages/OrderDetails';
 import Wishlist from './pages/Wishlist';
+import SellerDashboard from './pages/SellerDashboard';
 import ChatBot from './components/ChatBot';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
@@ -33,8 +35,10 @@ function App() {
                 <Route path="/myorders" element={<MyOrders />} />
                 <Route path="/order/:id" element={<OrderDetails />} />
                 <Route path="/wishlist" element={<Wishlist />} />
+                <Route path="/seller" element={<SellerDashboard />} />
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
               </Routes>
             </main>
             <ChatBot />

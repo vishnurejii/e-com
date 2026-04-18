@@ -17,7 +17,7 @@ const Navbar = () => {
                 </Link>
                 <nav className="nav-links">
                     <Link to="/store">Store</Link>
-                    {user && !user.is_staff && !user.is_superadmin && user.first_name !== 'Admin' && (
+                    {user && !user.is_seller && !user.is_staff && !user.is_superadmin && user.first_name !== 'Admin' && (
                         <>
                             <Link to="/wishlist" title="Wishlist">
                                 <Heart size={22} color="#ef4444" />
@@ -27,9 +27,14 @@ const Navbar = () => {
                             </Link>
                         </>
                     )}
+                    {user && user.is_seller && (
+                        <Link to="/seller" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#8b5cf6', fontWeight: 800 }}>
+                            <LayoutDashboard size={18} /> Seller Dashboard
+                        </Link>
+                    )}
                     {user && (user.is_staff || user.is_superadmin || user.first_name === 'Admin') && (
                         <Link to="/admin" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary)', fontWeight: 800 }}>
-                            <LayoutDashboard size={18} /> Admin
+                            <LayoutDashboard size={18} /> Admin Console
                         </Link>
                     )}
                     <Link to="/cart" className="cart-icon">
