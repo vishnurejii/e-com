@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
-import { ShoppingCart, ArrowLeft, Star, Heart } from 'lucide-react';
+import { ShoppingCart, ArrowLeft, Star, Heart, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -12,6 +12,8 @@ const ProductDetail = () => {
     const [rating, setRating] = useState(0);
     const [comment, setComment] = useState('');
     const [reviewLoading, setReviewLoading] = useState(false);
+    const [selectedSize, setSelectedSize] = useState('');
+    const [fit, setFit] = useState('True to size');
     const [wishlistLoading, setWishlistLoading] = useState(false);
     const { addToCart } = useCart();
 
@@ -19,6 +21,9 @@ const ProductDetail = () => {
         try {
             const { data } = await axios.get(`http://localhost:5000/api/products/${id}`);
             setProduct(data);
+            if (data.sizes && data.sizes.length > 0) {
+                setSelectedSize(data.sizes[0]);
+            }
         } catch (error) {
             console.error(error);
         }
@@ -49,10 +54,11 @@ const ProductDetail = () => {
         setReviewLoading(true);
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            await axios.post(`http://localhost:5000/api/products/${id}/reviews`, { rating, comment }, config);
+            await axios.post(`http://localhost:5000/api/products/${id}/reviews`, { rating, comment, fit }, config);
             alert('Review submitted!');
             setRating(0);
             setComment('');
+            setFit('True to size');
             fetchProduct();
         } catch (error) {
             alert(error.response?.data?.message || 'Error submitting review');
@@ -91,12 +97,60 @@ const ProductDetail = () => {
                     </div>
                     <h1 style={{ fontSize: '3rem', fontWeight: 800, marginBottom: '1rem', lineHeight: 1.1 }}>{product.product_name}</h1>
                     <p className="details-price" style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--primary)', marginBottom: '2rem' }}>${product.price.toFixed(2)}</p>
-                    <div className="details-desc" style={{ fontSize: '1.125rem', color: 'var(--text-muted)', marginBottom: '3rem', lineHeight: 1.8 }}>{product.description || "No description available for this premium product."}</div>
+                    <div className="details-desc" style={{ fontSize: '1.125rem', color: 'var(--text-muted)', marginBottom: '2rem', lineHeight: 1.8 }}>{product.description || "No description available for this premium product."}</div>
                     
+                    {/* Stock Status */}
+                    <div style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: product.stock > 0 ? '#10b981' : '#ef4444' }}></div>
+                        <span style={{ fontWeight: 700, color: product.stock > 0 ? '#10b981' : '#ef4444', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            {product.stock > 0 ? `In Stock (${product.stock} units)` : 'Out of Stock'}
+                        </span>
+                    </div>
+
+                    {/* Size Selection */}
+                    {product.sizes && product.sizes.length > 0 && (
+                        <div style={{ marginBottom: '3rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                <label style={{ fontWeight: 800, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Select Size</label>
+                                <button style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}>Size Guide</button>
+                            </div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+                                {product.sizes.map(sz => (
+                                    <button 
+                                        key={sz}
+                                        onClick={() => setSelectedSize(sz)}
+                                        style={{
+                                            minWidth: '60px',
+                                            height: '50px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            borderRadius: '12px',
+                                            border: `2px solid ${selectedSize === sz ? 'var(--primary)' : 'var(--border)'}`,
+                                            background: selectedSize === sz ? 'var(--primary--light)' : 'white',
+                                            color: selectedSize === sz ? 'var(--primary)' : 'var(--text)',
+                                            fontWeight: 800,
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s ease',
+                                            fontSize: '1rem'
+                                        }}
+                                    >
+                                        {sz}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     {!isAdmin && !isSeller && (
                         <div style={{ display: 'flex', gap: '1rem' }}>
-                            <button className="btn btn-primary" style={{ padding: '1.25rem 2.5rem', fontSize: '1.125rem', flexGrow: 1 }} onClick={() => addToCart(product)}>
-                                <ShoppingCart size={22} /> Add to Cart
+                            <button 
+                                className="btn btn-primary" 
+                                style={{ padding: '1.25rem 2.5rem', fontSize: '1.125rem', flexGrow: 1, opacity: product.stock === 0 ? 0.5 : 1 }} 
+                                onClick={() => addToCart(product, selectedSize)}
+                                disabled={product.stock === 0}
+                            >
+                                <ShoppingCart size={22} /> {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
                             </button>
                             <button 
                                 className="btn" 
@@ -130,7 +184,13 @@ const ProductDetail = () => {
                                         </div>
                                     </div>
                                     <p style={{ fontSize: '0.9rem', color: 'var(--secondary)', lineHeight: 1.6 }}>{review.comment}</p>
-                                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.75rem' }}>{new Date(review.createdAt).toLocaleDateString()}</p>
+                                    {review.fit && (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '1rem', background: '#f8fafc', padding: '0.5rem 0.75rem', borderRadius: '8px', alignSelf: 'flex-start', width: 'fit-content' }}>
+                                            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Fit:</span>
+                                            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--secondary)' }}>{review.fit}</span>
+                                        </div>
+                                    )}
+                                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '1rem' }}>{new Date(review.createdAt).toLocaleDateString()}</p>
                                 </div>
                             ))}
                         </div>
@@ -157,7 +217,7 @@ const ProductDetail = () => {
                                         ))}
                                     </div>
                                 </div>
-                                <div style={{ marginBottom: '2rem' }}>
+                                <div style={{ marginBottom: '1.5rem' }}>
                                     <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.75rem' }}>Your Experience</label>
                                     <textarea 
                                         value={comment} 
@@ -166,6 +226,30 @@ const ProductDetail = () => {
                                         style={{ width: '100%', padding: '1.25rem', borderRadius: '16px', border: '1px solid var(--border)', minHeight: '150px', fontSize: '1rem', outline: 'none' }}
                                         required
                                     />
+                                </div>
+                                <div style={{ marginBottom: '2rem' }}>
+                                    <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.75rem' }}>Product Fit</label>
+                                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                                        {['Small', 'True to size', 'Large'].map(option => (
+                                            <button 
+                                                key={option}
+                                                type="button"
+                                                onClick={() => setFit(option)}
+                                                style={{
+                                                    padding: '0.75rem 1.25rem',
+                                                    borderRadius: '12px',
+                                                    border: `1.5px solid ${fit === option ? 'var(--primary)' : 'var(--border)'}`,
+                                                    background: fit === option ? 'var(--primary--light)' : 'white',
+                                                    color: fit === option ? 'var(--primary)' : 'var(--text-muted)',
+                                                    fontWeight: 700,
+                                                    fontSize: '0.9rem',
+                                                    cursor: 'pointer'
+                                                }}
+                                            >
+                                                {option}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
                                 <button type="submit" className="btn btn-primary" disabled={reviewLoading} style={{ width: '100%', padding: '1.25rem' }}>
                                     {reviewLoading ? 'Submitting...' : 'Post Review'}

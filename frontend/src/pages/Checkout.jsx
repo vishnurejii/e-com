@@ -25,7 +25,8 @@ const Checkout = () => {
                 qty: item.quantity,
                 image: item.product.image,
                 price: item.product.price,
-                product: item.product._id
+                product: item.product._id,
+                size: item.size
             })),
             shippingAddress: { address, city, postalCode, country },
             paymentMethod: 'Credit Card',

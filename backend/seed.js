@@ -19,6 +19,7 @@ const products = [
         description: 'A classic timepiece with a genuine leather strap and minimalist dial.',
         price: 199,
         stock: 15,
+        sizes: ['S', 'M', 'L', 'XL'],
         image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=800'
     },
     {
@@ -27,6 +28,7 @@ const products = [
         description: 'Experience pure sound with our advanced noise-canceling technology.',
         price: 299,
         stock: 20,
+        sizes: ['One Size'],
         image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=800'
     },
     {
@@ -35,6 +37,7 @@ const products = [
         description: 'Modern and elegant, this coffee table is the center of any living room.',
         price: 450,
         stock: 5,
+        sizes: ['Standard'],
         image: 'https://images.unsplash.com/photo-1549462229-37f261ec00fc?auto=format&fit=crop&q=80&w=800'
     }
 ];

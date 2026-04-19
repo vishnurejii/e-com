@@ -4,6 +4,7 @@ const reviewSchema = new mongoose.Schema({
     name: { type: String, required: true },
     rating: { type: Number, required: true },
     comment: { type: String, required: true },
+    fit: { type: String }, // e.g., 'Small', 'True to size', 'Large'
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
 }, { timestamps: true });
 
@@ -14,6 +15,7 @@ const productSchema = new mongoose.Schema({
     image: { type: String },
     price: { type: Number, required: true },
     stock: { type: Number, required: true },
+    sizes: { type: [String], default: [] }, // e.g., ['S', 'M', 'L']
     is_available: { type: Boolean, default: true },
     category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
     seller: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },

@@ -14,14 +14,14 @@ export const CartProvider = ({ children }) => {
         localStorage.setItem('cart', JSON.stringify(cart));
     }, [cart]);
 
-    const addToCart = (product) => {
+    const addToCart = (product, size) => {
         setCart(prev => {
-            const existingItem = prev.items.find(item => item.product._id === product._id);
+            const existingItem = prev.items.find(item => item.product._id === product._id && item.size === size);
             if (existingItem) {
                 return {
                     ...prev,
                     items: prev.items.map(item =>
-                        item.product._id === product._id
+                        (item.product._id === product._id && item.size === size)
                             ? { ...item, quantity: item.quantity + 1 }
                             : item
                     )
@@ -29,24 +29,24 @@ export const CartProvider = ({ children }) => {
             }
             return {
                 ...prev,
-                items: [...prev.items, { product, quantity: 1 }]
+                items: [...prev.items, { product, quantity: 1, size }]
             };
         });
     };
 
-    const removeFromCart = (productId) => {
+    const removeFromCart = (productId, size) => {
         setCart(prev => ({
             ...prev,
-            items: prev.items.filter(item => item.product._id !== productId)
+            items: prev.items.filter(item => !(item.product._id === productId && item.size === size))
         }));
     };
 
-    const updateQuantity = (productId, quantity) => {
-        if (quantity < 1) return removeFromCart(productId);
+    const updateQuantity = (productId, size, quantity) => {
+        if (quantity < 1) return removeFromCart(productId, size);
         setCart(prev => ({
             ...prev,
             items: prev.items.map(item =>
-                item.product._id === productId ? { ...item, quantity } : item
+                (item.product._id === productId && item.size === size) ? { ...item, quantity } : item
             )
         }));
     };

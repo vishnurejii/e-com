@@ -97,6 +97,7 @@ const updateProduct = async (req, res) => {
             product.image = image || product.image;
             product.stock = stock || product.stock;
             product.category = category || product.category;
+            product.sizes = req.body.sizes || product.sizes;
             product.is_available = is_available !== undefined ? is_available : product.is_available;
 
             const updatedProduct = await product.save();
@@ -110,7 +111,7 @@ const updateProduct = async (req, res) => {
 };
 
 const createProductReview = async (req, res) => {
-    const { rating, comment } = req.body;
+    const { rating, comment, fit } = req.body;
     const product = await Product.findById(req.params.id);
 
     if (product) {
@@ -127,6 +128,7 @@ const createProductReview = async (req, res) => {
             name: `${req.user.first_name} ${req.user.last_name}`,
             rating: Number(rating),
             comment,
+            fit,
             user: req.user._id,
         };
 

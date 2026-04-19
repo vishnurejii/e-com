@@ -134,7 +134,14 @@ const OrderDetails = () => {
                                                 {item.itemStatus}
                                             </span>
                                         </div>
-                                        <p style={{ fontSize: '0.9rem', color: 'var(--secondary)' }}>{item.qty} x ${item.price.toFixed(2)}</p>
+                                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                                            <p style={{ fontSize: '0.9rem', color: 'var(--secondary)' }}>{item.qty} x ${item.price.toFixed(2)}</p>
+                                            {item.size && (
+                                                <span style={{ fontSize: '0.8rem', fontWeight: 800, background: '#f1f5f9', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>
+                                                    SIZE: {item.size}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                     <p style={{ fontWeight: 800 }}>${(item.qty * item.price).toFixed(2)}</p>
                                 </div>
