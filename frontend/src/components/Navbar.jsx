@@ -44,11 +44,11 @@ const Navbar = () => {
                     {user ? (
                         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 700 }}>{user.first_name}</span>
+                                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 700 }}>{user.first_name || 'User'}</span>
                                 <button onClick={logout} style={{ background: 'none', border: 'none', padding: 0, fontSize: '0.75rem', color: '#ef4444', cursor: 'pointer', fontWeight: 700 }}>Logout</button>
                             </div>
                             <div style={{ width: '36px', height: '36px', borderRadius: '12px', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.9rem' }}>
-                                {user.first_name[0]}
+                                {user.first_name ? user.first_name[0] : 'U'}
                             </div>
                         </div>
                     ) : (

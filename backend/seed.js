@@ -45,27 +45,35 @@ const seedDB = async () => {
         
         await Category.deleteMany({});
         await Product.deleteMany({});
-
-        const createdCategories = await Category.insertMany(categories);
-        
-        products[0].category = createdCategories[1]._id; // Fashion
-        products[1].category = createdCategories[0]._id; // Electronics
-        products[2].category = createdCategories[2]._id; // Home
-
-        await Product.insertMany(products);
-
         await User.deleteMany({});
-        await User.create({
+
+        // Create Admin User first to get its ID
+        const adminUser = await User.create({
             first_name: 'Admin',
             last_name: 'User',
             username: 'admin',
             email: 'admin@example.com',
             password: 'password123',
             is_staff: true,
-            is_superadmin: true
+            is_superadmin: true,
+            is_seller: true // Make admin a seller too for seeding
         });
 
-        console.log('Database seeded with Admin user!');
+        const createdCategories = await Category.insertMany(categories);
+        
+        // Assign categories and the admin as common seller
+        products[0].category = createdCategories[1]._id; // Fashion
+        products[1].category = createdCategories[0]._id; // Electronics
+        products[2].category = createdCategories[2]._id; // Home
+
+        const productsWithSeller = products.map(p => ({
+            ...p,
+            seller: adminUser._id
+        }));
+
+        await Product.insertMany(productsWithSeller);
+
+        console.log('Database seeded successfully with Admin user as seller!');
         process.exit();
     } catch (error) {
         console.error('Error seeding database:', error);

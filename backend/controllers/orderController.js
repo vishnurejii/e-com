@@ -11,6 +11,9 @@ const addOrderItems = async (req, res) => {
         // Enforce seller ID on each order item by fetching it from the DB
         const itemsWithSeller = await Promise.all(orderItems.map(async (item) => {
             const product = await Product.findById(item.product);
+            if (!product) {
+                throw new Error(`Product not found: ${item.product}`);
+            }
             return {
                 ...item,
                 seller: product.seller
