@@ -70,7 +70,7 @@ const SellerProducts = () => {
             fetchProducts();
         } catch (error) {
             console.error(error);
-            alert('Operation failed');
+            alert(error.response?.data?.message || 'Operation failed. Please check product details andTry again.');
         }
     };
 

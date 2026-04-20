@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { User, Mail, Shield, CheckCircle, XCircle } from 'lucide-react';
+import { User, Mail, Shield, CheckCircle, XCircle, Trash2 } from 'lucide-react';
 
 const AdminUsers = ({ user }) => {
     const [users, setUsers] = useState([]);
@@ -15,6 +15,18 @@ const AdminUsers = ({ user }) => {
             console.error(error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const deleteHandler = async (id) => {
+        if (window.confirm('Are you certain you want to remove this user? This action will also delete all their product listings if they are a seller.')) {
+            try {
+                const config = { headers: { Authorization: `Bearer ${user.token}` } };
+                await axios.delete(`http://localhost:5000/api/users/${id}`, config);
+                fetchUsers();
+            } catch (error) {
+                alert(error.response?.data?.message || 'Deletion failed');
+            }
         }
     };
 
@@ -40,7 +52,8 @@ const AdminUsers = ({ user }) => {
                             <th style={{ padding: '1.25rem 1.5rem', color: 'var(--text-muted)' }}>Email Address</th>
                             <th style={{ padding: '1.25rem 1.5rem', color: 'var(--text-muted)' }}>Role</th>
                             <th style={{ padding: '1.25rem 1.5rem', color: 'var(--text-muted)' }}>Status</th>
-                            <th style={{ padding: '1.25rem 1.5rem', color: 'var(--text-muted)', textAlign: 'right' }}>Registered On</th>
+                            <th style={{ padding: '1.25rem 1.5rem', color: 'var(--text-muted)' }}>Registered On</th>
+                            <th style={{ padding: '1.25rem 1.5rem', color: 'var(--text-muted)', textAlign: 'right' }}>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -85,8 +98,30 @@ const AdminUsers = ({ user }) => {
                                         <span>Active</span>
                                     </div>
                                 </td>
-                                <td style={{ padding: '1.25rem 1.5rem', textAlign: 'right', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                                <td style={{ padding: '1.25rem 1.5rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
                                     {new Date(u.createdAt || Date.now()).toLocaleDateString()}
+                                </td>
+                                <td style={{ padding: '1.25rem 1.5rem', textAlign: 'right' }}>
+                                    <button 
+                                        onClick={() => deleteHandler(u._id)}
+                                        style={{ 
+                                            padding: '0.5rem', 
+                                            borderRadius: '8px', 
+                                            border: '1px solid #fee2e2',
+                                            background: '#fff1f2',
+                                            color: '#ef4444',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s ease',
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center'
+                                        }}
+                                        onMouseEnter={(e) => { e.currentTarget.style.background = '#fecdd3'; }}
+                                        onMouseLeave={(e) => { e.currentTarget.style.background = '#fff1f2'; }}
+                                        title="Delete User"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
                                 </td>
                             </tr>
                         ))}

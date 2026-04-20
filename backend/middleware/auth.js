@@ -23,7 +23,7 @@ const admin = (req, res, next) => {
     if (req.user && (req.user.is_staff || req.user.is_superadmin || req.user.first_name === 'Admin')) {
         next();
     } else {
-        res.status(401).json({ message: 'Not authorized as an admin' });
+        res.status(401).json({ message: 'FAIL_ADMIN_CHECK: You must be an administrator' });
     }
 };
 
@@ -31,7 +31,7 @@ const seller = (req, res, next) => {
     if (req.user && (req.user.is_seller || req.user.is_staff || req.user.is_superadmin || req.user.first_name === 'Admin')) {
         next();
     } else {
-        res.status(401).json({ message: 'Not authorized as a seller' });
+        res.status(401).json({ message: 'FAIL_SELLER_CHECK: You must be a registered seller' });
     }
 };
 
