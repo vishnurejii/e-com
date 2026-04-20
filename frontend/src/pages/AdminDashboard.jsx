@@ -15,8 +15,8 @@ const AdminDashboard = () => {
 
     const refreshData = async () => {
         try {
-            const resProds = await axios.get('http://localhost:5000/api/products');
-            const resCats = await axios.get('http://localhost:5000/api/categories');
+            const resProds = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/products`);
+            const resCats = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/categories`);
             setProducts(resProds.data);
             setCategories(resCats.data);
         } catch (error) {

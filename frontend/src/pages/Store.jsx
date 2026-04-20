@@ -17,10 +17,10 @@ const Store = () => {
     const fetchData = async () => {
         try {
             setLoading(true);
-            const resCats = await axios.get('http://localhost:5000/api/categories');
+            const resCats = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/categories`);
             setCategories(resCats.data);
 
-            let url = `http://localhost:5000/api/products?sort=${sort}`;
+            let url = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/products?sort=${sort}`;
             if (selectedCategory) url += `&category=${selectedCategory}`;
             if (keyword) url += `&keyword=${keyword}`;
             if (minPrice) url += `&minPrice=${minPrice}`;

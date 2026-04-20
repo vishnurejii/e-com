@@ -9,7 +9,7 @@ const AdminOrders = ({ user }) => {
     const fetchOrders = async () => {
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            const { data } = await axios.get('http://localhost:5000/api/orders', config);
+            const { data } = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders`, config);
             setOrders(data);
         } catch (error) {
             console.error(error);
@@ -27,7 +27,7 @@ const AdminOrders = ({ user }) => {
     const statusUpdateHandler = async (id, status) => {
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            await axios.put(`http://localhost:5000/api/orders/${id}/status`, { status }, config);
+            await axios.put(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders/${id}/status`, { status }, config);
             fetchOrders();
         } catch (error) {
             console.error(error);

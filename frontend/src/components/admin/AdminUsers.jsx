@@ -9,7 +9,7 @@ const AdminUsers = ({ user }) => {
     const fetchUsers = async () => {
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            const { data } = await axios.get('http://localhost:5000/api/users', config);
+            const { data } = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/users`, config);
             setUsers(data);
         } catch (error) {
             console.error(error);
@@ -22,7 +22,7 @@ const AdminUsers = ({ user }) => {
         if (window.confirm('Are you certain you want to remove this user? This action will also delete all their product listings if they are a seller.')) {
             try {
                 const config = { headers: { Authorization: `Bearer ${user.token}` } };
-                await axios.delete(`http://localhost:5000/api/users/${id}`, config);
+                await axios.delete(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/users/${id}`, config);
                 fetchUsers();
             } catch (error) {
                 alert(error.response?.data?.message || 'Deletion failed');

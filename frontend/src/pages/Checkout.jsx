@@ -40,7 +40,7 @@ const Checkout = () => {
                     Authorization: `Bearer ${user.token}`
                 }
             };
-            await axios.post('http://localhost:5000/api/orders', orderData, config);
+            await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders`, orderData, config);
             setIsSuccess(true);
         } catch (error) {
             console.error(error);

@@ -19,7 +19,7 @@ export const WishlistProvider = ({ children }) => {
         try {
             setLoading(true);
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            const { data } = await axios.get('http://localhost:5000/api/wishlist', config);
+            const { data } = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/wishlist`, config);
             setWishlist(data.products || []);
         } catch (error) {
             console.error('Error fetching wishlist:', error);
@@ -39,7 +39,7 @@ export const WishlistProvider = ({ children }) => {
         }
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            await axios.post('http://localhost:5000/api/wishlist', { productId }, config);
+            await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/wishlist`, { productId }, config);
             // Refresh wishlist after adding
             fetchWishlist();
         } catch (error) {
@@ -52,7 +52,7 @@ export const WishlistProvider = ({ children }) => {
         if (!user) return;
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            await axios.delete(`http://localhost:5000/api/wishlist/${productId}`, config);
+            await axios.delete(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/wishlist/${productId}`, config);
             // Update local state directly for immediate feedback
             setWishlist(prev => prev.filter(p => p._id !== productId));
         } catch (error) {

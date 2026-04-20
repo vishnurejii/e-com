@@ -26,7 +26,7 @@ const SellerProducts = () => {
 
     const fetchProducts = async () => {
         try {
-            const { data } = await axios.get(`http://localhost:5000/api/products?sellerId=${user._id}`);
+            const { data } = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/products?sellerId=${user._id}`);
             setProducts(data);
         } catch (error) {
             console.error(error);
@@ -36,7 +36,7 @@ const SellerProducts = () => {
     };
 
     const fetchCategories = async () => {
-        const { data } = await axios.get('http://localhost:5000/api/categories');
+        const { data } = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/categories`);
         setCategories(data);
     };
 
@@ -58,11 +58,11 @@ const SellerProducts = () => {
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
             if (editingProduct) {
-                await axios.put(`http://localhost:5000/api/products/${editingProduct._id}`, formData, config);
+                await axios.put(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/products/${editingProduct._id}`, formData, config);
             } else {
                 // Generate slug if empty
                 const finalData = { ...formData, slug: formData.slug || formData.product_name.toLowerCase().replace(/ /g, '-') };
-                await axios.post('http://localhost:5000/api/products', finalData, config);
+                await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/products`, finalData, config);
             }
             setShowModal(false);
             setEditingProduct(null);
@@ -78,7 +78,7 @@ const SellerProducts = () => {
         if (window.confirm('Delete this product?')) {
             try {
                 const config = { headers: { Authorization: `Bearer ${user.token}` } };
-                await axios.delete(`http://localhost:5000/api/products/${id}`, config);
+                await axios.delete(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/products/${id}`, config);
                 fetchProducts();
             } catch (error) {
                 console.error(error);

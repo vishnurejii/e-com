@@ -90,7 +90,7 @@ const ShopSettings = () => {
         setLoading(true);
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            const { data } = await axios.put('http://localhost:5000/api/users/profile', formData, config);
+            const { data } = await axios.put(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/users/profile`, formData, config);
             login(data);
             alert('Profile updated successfully!');
         } catch (error) {

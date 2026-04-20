@@ -14,7 +14,7 @@ const OrderDetails = () => {
     const fetchOrder = async () => {
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            const { data } = await axios.get(`http://localhost:5000/api/orders/${id}`, config);
+            const { data } = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders/${id}`, config);
             setOrder(data);
         } catch (error) {
             console.error(error);
@@ -34,7 +34,7 @@ const OrderDetails = () => {
             try {
                 setActionLoading(true);
                 const config = { headers: { Authorization: `Bearer ${user.token}` } };
-                await axios.put(`http://localhost:5000/api/orders/${id}/cancel`, {}, config);
+                await axios.put(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders/${id}/cancel`, {}, config);
                 fetchOrder();
             } catch (error) {
                 alert(error.response?.data?.message || 'Error cancelling order');

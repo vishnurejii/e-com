@@ -20,7 +20,7 @@ const ProductDetail = () => {
 
     const fetchProduct = async () => {
         try {
-            const { data } = await axios.get(`http://localhost:5000/api/products/${id}`);
+            const { data } = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/products/${id}`);
             setProduct(data);
             if (data.sizes && data.sizes.length > 0) {
                 setSelectedSize(data.sizes[0]);
@@ -42,7 +42,7 @@ const ProductDetail = () => {
         setReviewLoading(true);
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            await axios.post(`http://localhost:5000/api/products/${id}/reviews`, { rating, comment, fit }, config);
+            await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/products/${id}/reviews`, { rating, comment, fit }, config);
             alert('Review submitted!');
             setRating(0);
             setComment('');

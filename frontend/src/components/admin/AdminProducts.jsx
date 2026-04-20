@@ -16,7 +16,7 @@ const AdminProducts = ({ products, categories, onRefresh, user }) => {
         if (window.confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
             try {
                 const config = { headers: { Authorization: `Bearer ${user.token}` } };
-                await axios.delete(`http://localhost:5000/api/products/${id}`, config);
+                await axios.delete(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/products/${id}`, config);
                 onRefresh();
             } catch (error) {
                 console.error(error);
@@ -29,9 +29,9 @@ const AdminProducts = ({ products, categories, onRefresh, user }) => {
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
             if (prodData._id) {
-                await axios.put(`http://localhost:5000/api/products/${prodData._id}`, prodData, config);
+                await axios.put(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/products/${prodData._id}`, prodData, config);
             } else {
-                await axios.post('http://localhost:5000/api/products', prodData, config);
+                await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/products`, prodData, config);
             }
             setIsModalOpen(false);
             onRefresh();
