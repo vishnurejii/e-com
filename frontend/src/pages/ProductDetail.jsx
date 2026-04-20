@@ -4,6 +4,7 @@ import axios from 'axios';
 import { ShoppingCart, ArrowLeft, Star, Heart, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useWishlist } from '../context/WishlistContext';
 
 const ProductDetail = () => {
     const { id } = useParams();
@@ -14,8 +15,8 @@ const ProductDetail = () => {
     const [reviewLoading, setReviewLoading] = useState(false);
     const [selectedSize, setSelectedSize] = useState('');
     const [fit, setFit] = useState('True to size');
-    const [wishlistLoading, setWishlistLoading] = useState(false);
     const { addToCart } = useCart();
+    const { toggleWishlist, isInWishlist } = useWishlist();
 
     const fetchProduct = async () => {
         try {
@@ -33,20 +34,7 @@ const ProductDetail = () => {
         fetchProduct();
     }, [id]);
 
-    const addToWishlistHandler = async () => {
-        if (!user) return alert('Please login to add to wishlist');
-        try {
-            setWishlistLoading(true);
-            const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            await axios.post('http://localhost:5000/api/wishlist', { productId: product._id }, config);
-            alert('Added to wishlist!');
-        } catch (error) {
-            console.error(error);
-            alert('Error adding to wishlist');
-        } finally {
-            setWishlistLoading(false);
-        }
-    };
+    const isWishlisted = isInWishlist(id);
 
     const submitHandler = async (e) => {
         e.preventDefault();
@@ -142,8 +130,8 @@ const ProductDetail = () => {
                         </div>
                     )}
 
-                    {!isAdmin && !isSeller && (
-                        <div style={{ display: 'flex', gap: '1rem' }}>
+                    <div style={{ display: 'flex', gap: '1rem' }}>
+                        {!isAdmin && !isSeller && (
                             <button 
                                 className="btn btn-primary" 
                                 style={{ padding: '1.25rem 2.5rem', fontSize: '1.125rem', flexGrow: 1, opacity: product.stock === 0 ? 0.5 : 1 }} 
@@ -152,16 +140,17 @@ const ProductDetail = () => {
                             >
                                 <ShoppingCart size={22} /> {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
                             </button>
+                        )}
+                        {user && (
                             <button 
                                 className="btn" 
                                 style={{ padding: '1.25rem', background: 'white', border: '1px solid var(--border)', color: '#ef4444' }} 
-                                onClick={addToWishlistHandler}
-                                disabled={wishlistLoading}
+                                onClick={() => toggleWishlist(product._id)}
                             >
-                                <Heart size={24} fill={wishlistLoading ? "#fee2e2" : "none"} />
+                                <Heart size={24} fill={isWishlisted ? "#ef4444" : "none"} color={isWishlisted ? "#ef4444" : "currentColor"} />
                             </button>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             </div>
 

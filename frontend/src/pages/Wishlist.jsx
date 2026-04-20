@@ -1,47 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 import { Link } from 'react-router-dom';
 import { Heart, Trash2, ShoppingCart, ArrowRight } from 'lucide-react';
 
 const Wishlist = () => {
     const { user } = useAuth();
     const { addToCart } = useCart();
-    const [wishlist, setWishlist] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    const fetchWishlist = async () => {
-        try {
-            const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            const { data } = await axios.get('http://localhost:5000/api/wishlist', config);
-            setWishlist(data.products || []);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        if (user && user.token) {
-            fetchWishlist();
-        }
-    }, [user]);
-
-    const removeFromWishlist = async (id) => {
-        try {
-            const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            await axios.delete(`http://localhost:5000/api/wishlist/${id}`, config);
-            setWishlist(wishlist.filter(p => p._id !== id));
-        } catch (error) {
-            console.error(error);
-        }
-    };
+    const { wishlist, loading, removeFromWishlist } = useWishlist();
 
     const handleAddToCart = (product) => {
         addToCart(product);
-        // Optional: remove from wishlist when added to cart? Usually not.
     };
 
     if (loading) return <div className="container" style={{ padding: '4rem', textAlign: 'center' }}>Loading wishlist...</div>;

@@ -16,34 +16,37 @@ import SellerDashboard from './pages/SellerDashboard';
 import ChatBot from './components/ChatBot';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
+import { WishlistProvider } from './context/WishlistContext';
 import './styles/main.css';
 
 function App() {
   return (
     <Router>
       <AuthProvider>
-        <CartProvider>
-          <div className="App">
-            <Navbar />
-            <main>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/store" element={<Store />} />
-                <Route path="/product/:id" element={<ProductDetail />} />
-                <Route path="/cart" element={<Cart />} />
-                <Route path="/checkout" element={<Checkout />} />
-                <Route path="/myorders" element={<MyOrders />} />
-                <Route path="/order/:id" element={<OrderDetails />} />
-                <Route path="/wishlist" element={<Wishlist />} />
-                <Route path="/seller" element={<SellerDashboard />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-              </Routes>
-            </main>
-            <ChatBot />
-          </div>
-        </CartProvider>
+        <WishlistProvider>
+          <CartProvider>
+            <div className="App">
+              <Navbar />
+              <main>
+                <Routes>
+                  <Route path="/" element={< Home />} />
+                  <Route path="/store" element={< Store />} />
+                  <Route path="/product/:id" element={< ProductDetail />} />
+                  <Route path="/cart" element={< Cart />} />
+                  <Route path="/checkout" element={< Checkout />} />
+                  <Route path="/myorders" element={< MyOrders />} />
+                  <Route path="/order/:id" element={< OrderDetails />} />
+                  <Route path="/wishlist" element={< Wishlist />} />
+                  <Route path="/seller" element={< SellerDashboard />} />
+                  <Route path="/admin" element={< AdminDashboard />} />
+                  <Route path="/login" element={< Login />} />
+                  <Route path="/register" element={< Register />} />
+                </Routes>
+              </main>
+              <ChatBot />
+            </div>
+          </CartProvider>
+        </WishlistProvider>
       </AuthProvider>
     </Router>
   );

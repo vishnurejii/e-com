@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 import { ShoppingCart, User, ShoppingBag, LayoutDashboard, Heart, Package } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useWishlist } from '../context/WishlistContext';
 
 const Navbar = () => {
     const { cartCount } = useCart();
     const { user, logout } = useAuth();
+    const { wishlist } = useWishlist();
 
     return (
         <header>
@@ -17,14 +19,17 @@ const Navbar = () => {
                 </Link>
                 <nav className="nav-links">
                     <Link to="/store">Store</Link>
-                    {user && !user.is_seller && !user.is_staff && !user.is_superadmin && user.first_name !== 'Admin' && (
+                    {user && (
                         <>
-                            <Link to="/wishlist" title="Wishlist">
-                                <Heart size={22} color="#ef4444" />
+                            <Link to="/wishlist" title="Wishlist" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                                <Heart size={22} color="#ef4444" fill={wishlist.length > 0 ? "#ef4444" : "none"} />
+                                {wishlist.length > 0 && <span style={{ position: 'absolute', top: '-8px', right: '-10px', background: 'var(--text)', color: 'white', fontSize: '0.65rem', fontWeight: 800, width: '16px', height: '16px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{wishlist.length}</span>}
                             </Link>
-                            <Link to="/myorders" title="My Orders">
-                                <Package size={22} />
-                            </Link>
+                            {!user.is_seller && !user.is_staff && !user.is_superadmin && user.first_name !== 'Admin' && (
+                                <Link to="/myorders" title="My Orders">
+                                    <Package size={22} />
+                                </Link>
+                            )}
                         </>
                     )}
                     {user && user.is_seller && (
