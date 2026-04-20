@@ -115,6 +115,13 @@ const createProductReview = async (req, res) => {
     const product = await Product.findById(req.params.id);
 
     if (product) {
+        console.log(`[DEBUG] User ${req.user._id} attempting review on product ${product._id} (seller: ${product.seller})`);
+        
+        if (product.seller.toString() === req.user._id.toString()) {
+            res.status(400);
+            return res.json({ message: 'Sellers cannot review their own products' });
+        }
+
         const alreadyReviewed = product.reviews.find(
             (r) => r.user.toString() === req.user._id.toString()
         );

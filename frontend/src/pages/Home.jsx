@@ -8,10 +8,10 @@ const Home = () => {
 
     // Premium assets generated for the hero
     const premiumAssets = [
-        { id: 'p1', img: '/C:/Users/vishn/.gemini/antigravity/brain/9f05c602-526b-4179-b23b-94f2cb92187b/hero_product_1_1776694819931.png', pos: { x: -35, y: -25 }, scale: 1.2 },
-        { id: 'p2', img: '/C:/Users/vishn/.gemini/antigravity/brain/9f05c602-526b-4179-b23b-94f2cb92187b/hero_product_2_1776694847643.png', pos: { x: 35, y: -20 }, scale: 0.9 },
-        { id: 'p3', img: '/C:/Users/vishn/.gemini/antigravity/brain/9f05c602-526b-4179-b23b-94f2cb92187b/hero_product_3_1776694871476.png', pos: { x: -30, y: 30 }, scale: 1.1 },
-        { id: 'p4', img: '/C:/Users/vishn/.gemini/antigravity/brain/9f05c602-526b-4179-b23b-94f2cb92187b/hero_product_2_1776694847643.png', pos: { x: 40, y: 25 }, scale: 0.8 },
+        { id: 'p1', img: '/images/hero/hero_product_1.png', pos: { x: -30, y: -25 }, scale: 1.2 },
+        { id: 'p2', img: '/images/hero/hero_product_2.png', pos: { x: 30, y: -20 }, scale: 0.9 },
+        { id: 'p3', img: '/images/hero/hero_product_3.png', pos: { x: -25, y: 20 }, scale: 1.1 },
+        { id: 'p4', img: '/images/hero/hero_product_1.png', pos: { x: 35, y: 25 }, scale: 0.8 },
     ];
 
     useEffect(() => {
@@ -45,24 +45,37 @@ const Home = () => {
                         const initialY = isDynamic ? (index < 2 ? -30 : 30) : item.pos.y;
                         
                         // Calculated animation properties based on scroll
-                        const spreadFactor = 200 * scrollProgress;
+                        const spreadFactor = 150 * scrollProgress;
                         const x = initialX + (initialX > 0 ? spreadFactor : -spreadFactor);
                         const y = initialY + (initialY > 0 ? spreadFactor : -spreadFactor);
-                        const opacity = 1 - scrollProgress;
-                        const rotation = (index % 2 === 0 ? 1 : -1) * 15 * scrollProgress;
+                        const opacity = 1 - scrollProgress * 1.2;
+                        const rotation = (index % 2 === 0 ? 1 : -1) * (10 + 20 * scrollProgress);
 
                         return (
-                            <img 
+                            <div 
                                 key={item._id || item.id}
-                                src={isDynamic ? item.image : item.img} 
-                                className="floating-img"
+                                className="floating-img-container"
                                 style={{ 
+                                    position: 'absolute',
+                                    top: '50%',
+                                    left: '50%',
                                     transform: `translate(calc(-50% + ${x}vw), calc(-50% + ${y}vh)) scale(${item.scale || 1}) rotate(${rotation}deg)`,
-                                    opacity: opacity,
-                                    transition: scrollProgress === 0 ? 'all 1s ease-out' : 'none'
+                                    opacity: Math.max(opacity, 0),
+                                    transition: scrollProgress === 0 ? 'all 1.5s cubic-bezier(0.2, 0.8, 0.2, 1)' : 'none',
+                                    zIndex: 5
                                 }}
-                                alt="floating product"
-                            />
+                            >
+                                <img 
+                                    src={isDynamic ? item.image : item.img} 
+                                    className="floating-img"
+                                    style={{ 
+                                        width: '100%',
+                                        height: '100%',
+                                        animation: `subtleFloat ${6 + index}s ease-in-out infinite`
+                                    }}
+                                    alt="floating product"
+                                />
+                            </div>
                         );
                     })}
                 </div>

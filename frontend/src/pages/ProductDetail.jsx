@@ -56,9 +56,10 @@ const ProductDetail = () => {
     };
 
     const isAdmin = user && (user.is_staff || user.is_superadmin || user.first_name === 'Admin');
-    const isSeller = user && user.is_seller;
-
     if (!product) return <div className="container" style={{ padding: '5rem 0' }}>Loading...</div>;
+    
+    const isSeller = user && user.is_seller;
+    const isProductOwner = user && product.seller && user._id === (product.seller._id || product.seller);
 
     return (
         <div className="container" style={{ padding: '4rem 0' }}>
@@ -190,60 +191,66 @@ const ProductDetail = () => {
                     <h2 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '2rem' }}>Write a Review</h2>
                     {!isAdmin ? (
                         user ? (
-                            <form onSubmit={submitHandler} style={{ background: 'white', padding: '2.5rem', borderRadius: '24px', border: '1px solid var(--border)' }}>
-                                <div style={{ marginBottom: '1.5rem' }}>
-                                    <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.75rem' }}>Rating</label>
-                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                        {[1, 2, 3, 4, 5].map(nu => (
-                                            <button 
-                                                key={nu} 
-                                                type="button" 
-                                                onClick={() => setRating(nu)}
-                                                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-                                            >
-                                                <Star size={32} fill={rating >= nu ? "#f59e0b" : "none"} color="#f59e0b" />
-                                            </button>
-                                        ))}
+                            isProductOwner ? (
+                                <div style={{ background: '#f8fafc', padding: '2.5rem', borderRadius: '24px', textAlign: 'center', border: '1px solid var(--border)' }}>
+                                    <p style={{ color: 'var(--text-muted)' }}>You cannot review your own product.</p>
+                                </div>
+                            ) : (
+                                <form onSubmit={submitHandler} style={{ background: 'white', padding: '2.5rem', borderRadius: '24px', border: '1px solid var(--border)' }}>
+                                    <div style={{ marginBottom: '1.5rem' }}>
+                                        <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.75rem' }}>Rating</label>
+                                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                            {[1, 2, 3, 4, 5].map(nu => (
+                                                <button 
+                                                    key={nu} 
+                                                    type="button" 
+                                                    onClick={() => setRating(nu)}
+                                                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                                                >
+                                                    <Star size={32} fill={rating >= nu ? "#f59e0b" : "none"} color="#f59e0b" />
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
-                                <div style={{ marginBottom: '1.5rem' }}>
-                                    <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.75rem' }}>Your Experience</label>
-                                    <textarea 
-                                        value={comment} 
-                                        onChange={(e) => setComment(e.target.value)}
-                                        placeholder="Tell others about this product..."
-                                        style={{ width: '100%', padding: '1.25rem', borderRadius: '16px', border: '1px solid var(--border)', minHeight: '150px', fontSize: '1rem', outline: 'none' }}
-                                        required
-                                    />
-                                </div>
-                                <div style={{ marginBottom: '2rem' }}>
-                                    <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.75rem' }}>Product Fit</label>
-                                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                                        {['Small', 'True to size', 'Large'].map(option => (
-                                            <button 
-                                                key={option}
-                                                type="button"
-                                                onClick={() => setFit(option)}
-                                                style={{
-                                                    padding: '0.75rem 1.25rem',
-                                                    borderRadius: '12px',
-                                                    border: `1.5px solid ${fit === option ? 'var(--primary)' : 'var(--border)'}`,
-                                                    background: fit === option ? 'var(--primary--light)' : 'white',
-                                                    color: fit === option ? 'var(--primary)' : 'var(--text-muted)',
-                                                    fontWeight: 700,
-                                                    fontSize: '0.9rem',
-                                                    cursor: 'pointer'
-                                                }}
-                                            >
-                                                {option}
-                                            </button>
-                                        ))}
+                                    <div style={{ marginBottom: '1.5rem' }}>
+                                        <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.75rem' }}>Your Experience</label>
+                                        <textarea 
+                                            value={comment} 
+                                            onChange={(e) => setComment(e.target.value)}
+                                            placeholder="Tell others about this product..."
+                                            style={{ width: '100%', padding: '1.25rem', borderRadius: '16px', border: '1px solid var(--border)', minHeight: '150px', fontSize: '1rem', outline: 'none' }}
+                                            required
+                                        />
                                     </div>
-                                </div>
-                                <button type="submit" className="btn btn-primary" disabled={reviewLoading} style={{ width: '100%', padding: '1.25rem' }}>
-                                    {reviewLoading ? 'Submitting...' : 'Post Review'}
-                                </button>
-                            </form>
+                                    <div style={{ marginBottom: '2rem' }}>
+                                        <label style={{ display: 'block', fontWeight: 700, marginBottom: '0.75rem' }}>Product Fit</label>
+                                        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                                            {['Small', 'True to size', 'Large'].map(option => (
+                                                <button 
+                                                    key={option}
+                                                    type="button"
+                                                    onClick={() => setFit(option)}
+                                                    style={{
+                                                        padding: '0.75rem 1.25rem',
+                                                        borderRadius: '12px',
+                                                        border: `1.5px solid ${fit === option ? 'var(--primary)' : 'var(--border)'}`,
+                                                        background: fit === option ? 'var(--primary--light)' : 'white',
+                                                        color: fit === option ? 'var(--primary)' : 'var(--text-muted)',
+                                                        fontWeight: 700,
+                                                        fontSize: '0.9rem',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                >
+                                                    {option}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <button type="submit" className="btn btn-primary" disabled={reviewLoading} style={{ width: '100%', padding: '1.25rem' }}>
+                                        {reviewLoading ? 'Submitting...' : 'Post Review'}
+                                    </button>
+                                </form>
+                            )
                         ) : (
                             <div style={{ background: '#f8fafc', padding: '2.5rem', borderRadius: '24px', textAlign: 'center', border: '1px dashed var(--border)' }}>
                                 <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>You must be logged in to leave a review.</p>
