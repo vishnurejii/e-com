@@ -57,9 +57,17 @@ const processChatMessage = async (req, res) => {
 
         res.end();
     } catch (error) {
-        console.error('Chat error:', error);
+        console.error('DETAILED CHAT ERROR:', {
+            message: error.message,
+            stack: error.stack,
+            apiKeyExists: !!process.env.GEMINI_API_KEY
+        });
+        
         if (!res.headersSent) {
-            res.status(500).json({ message: "Chat assistance is temporarily unavailable." });
+            res.status(500).json({ 
+                message: "Chat assistance error", 
+                details: error.message 
+            });
         } else {
             res.end();
         }
