@@ -13,11 +13,22 @@ const processChatMessage = async (req, res) => {
             return res.status(500).json({ message: "Gemini API Key is not configured." });
         }
 
-        // Fetch products to provide context
-        const products = await Product.find({ is_available: true }).limit(20);
-        const productContext = products.map(p => 
-            `- ${p.product_name}: $${p.price} (${p.category}). Description: ${p.description}`
-        ).join('\n');
+        // Check if database is connected
+        if (require('mongoose').connection.readyState !== 1) {
+            console.warn('Database not connected, proceeding without product context');
+            productContext = "Products are currently unavailable.";
+        } else {
+            // Fetch products to provide context
+            try {
+                const products = await Product.find({ is_available: true }).limit(20);
+                productContext = products.length > 0 
+                    ? products.map(p => `- ${p.product_name}: $${p.price} (${p.category}). Description: ${p.description}`).join('\n')
+                    : "No products currently in stock.";
+            } catch (dbErr) {
+                console.error('DB Fetch Error:', dbErr.message);
+                productContext = "Error fetching products.";
+            }
+        }
 
         const prompt = `
             You are a helpful and friendly customer service assistant for NewKart, an e-commerce store.
