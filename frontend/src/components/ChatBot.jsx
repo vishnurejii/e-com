@@ -25,21 +25,49 @@ const ChatBot = () => {
 
         const userMessage = { text: input, sender: 'user' };
         setMessages(prev => [...prev, userMessage]);
+        const currentInput = input;
         setInput('');
         setIsTyping(true);
 
+        // Placeholder for bot response
+        setMessages(prev => [...prev, { text: '', sender: 'bot' }]);
+
         try {
-            const { data } = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/chat`, { message: input });
-            
-            // Simulate slight delay for natural feel
-            setTimeout(() => {
-                setMessages(prev => [...prev, { text: data.response, sender: 'bot' }]);
-                setIsTyping(false);
-            }, 800);
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/chat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: currentInput })
+            });
+
+            if (!response.ok) throw new Error('Network response was not ok');
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let botText = '';
+
+            setIsTyping(false);
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value, { stream: true });
+                botText += chunk;
+
+                setMessages(prev => {
+                    const newMessages = [...prev];
+                    newMessages[newMessages.length - 1].text = botText;
+                    return newMessages;
+                });
+            }
         } catch (error) {
             console.error('Chat error:', error);
-            setMessages(prev => [...prev, { text: "Sorry, I'm having trouble connecting to my brain right now.", sender: 'bot' }]);
             setIsTyping(false);
+            setMessages(prev => {
+                const newMessages = [...prev];
+                newMessages[newMessages.length - 1].text = "Sorry, I'm having trouble connecting to my brain right now. Make sure the API key is configured.";
+                return newMessages;
+            });
         }
     };
 

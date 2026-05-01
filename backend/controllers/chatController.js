@@ -1,62 +1,68 @@
 const Product = require('../models/Product');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-// @desc    Process chat message
+// @desc    Process chat message with Gemini Streaming
 // @route   POST /api/chat
 // @access  Public
 const processChatMessage = async (req, res) => {
     try {
         const { message } = req.body;
-        const lowerMessage = message.toLowerCase();
-
-        let response = "";
-
-        // Greeting detection
-        if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
-            response = "Hello! I'm your NewKart assistant. How can I help you today?";
-        } 
-        // Product list query
-        else if (lowerMessage.includes('products') || lowerMessage.includes('show me') || lowerMessage.includes('what do you have')) {
-            const products = await Product.find({ is_available: true }).limit(5);
-            const productNames = products.map(p => p.product_name).join(', ');
-            response = `We have some amazing products including: ${productNames}. You can check our store for the full collection!`;
+        const apiKey = process.env.GEMINI_API_KEY;
+        
+        if (!apiKey || apiKey === 'your_gemini_api_key_here') {
+            return res.status(500).json({ message: "Gemini API Key is not configured." });
         }
-        // Specific product query
-        else if (lowerMessage.includes('price') || lowerMessage.includes('how much') || lowerMessage.includes('cost')) {
-            const products = await Product.find({ is_available: true });
-            const foundProduct = products.find(p => lowerMessage.includes(p.product_name.toLowerCase()));
 
-            if (foundProduct) {
-                response = `The ${foundProduct.product_name} is priced at $${foundProduct.price}. We currently have ${foundProduct.stock} in stock.`;
-            } else {
-                response = "I couldn't find the specific product you're asking about. Could you please specify the name?";
-            }
-        }
-        // Search query
-        else if (lowerMessage.length > 3) {
-            const query = {
-                is_available: true,
-                $or: [
-                    { product_name: { $regex: lowerMessage, $options: 'i' } },
-                    { description: { $regex: lowerMessage, $options: 'i' } }
-                ]
-            };
-            const products = await Product.find(query).limit(3);
+        // Fetch products to provide context
+        const products = await Product.find({ is_available: true }).limit(20);
+        const productContext = products.map(p => 
+            `- ${p.product_name}: $${p.price} (${p.category}). Description: ${p.description}`
+        ).join('\n');
+
+        const prompt = `
+            You are a helpful and friendly customer service assistant for NewKart, an e-commerce store.
             
-            if (products.length > 0) {
-                const results = products.map(p => `${p.product_name} ($${p.price})`).join(', ');
-                response = `I found these matching products: ${results}. and many more!`;
-            } else {
-                response = "I'm not sure about that. Try asking about our products, prices, or store hours!";
-            }
+            Here are some of our available products:
+            ${productContext}
+            
+            Customer question: "${message}"
+            
+            Instructions:
+            1. Be concise but helpful.
+            2. If the customer asks about products, refer to the list above.
+            3. Stay in character as the NewKart assistant.
+            4. Return only the response text.
+        `;
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+        let model = genAI.getGenerativeModel({ model: "gemini-flash-latest" }, { apiVersion: "v1beta" });
+        
+        let result;
+        try {
+            result = await model.generateContentStream(prompt);
+        } catch (error) {
+            console.warn('Flash overloaded or failed, trying Pro fallback...');
+            model = genAI.getGenerativeModel({ model: "gemini-pro-latest" }, { apiVersion: "v1beta" });
+            result = await model.generateContentStream(prompt);
         }
-        // Fallback
-        else {
-            response = "I'm here to help! try asking about our 'products', 'prices', or help with your order.";
+        
+        // Set up streaming response
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        res.setHeader('Transfer-Encoding', 'chunked');
+
+        for await (const chunk of result.stream) {
+            const chunkText = chunk.text();
+            res.write(chunkText);
         }
 
-        res.json({ response });
+        res.end();
     } catch (error) {
-        res.status(500).json({ message: "Chat assistance is temporarily unavailable." });
+        console.error('Chat error:', error);
+        if (!res.headersSent) {
+            res.status(500).json({ message: "Chat assistance is temporarily unavailable." });
+        } else {
+            res.end();
+        }
     }
 };
 
